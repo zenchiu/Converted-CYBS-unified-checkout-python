@@ -25,6 +25,13 @@ A Python conversion of the [CyberSource Unified Checkout Node.js sample](https:/
    pip install -r requirements.txt
    ```
 
+   **Python 3.12+:** Run this first (setuptools and standard-imghdr must be installed before the rest, since `imghdr` was removed in 3.13):
+
+   ```bash
+   pip install "setuptools<81" standard-imghdr
+   pip install -r requirements.txt
+   ```
+
 3. **Configure your merchant credentials**:
 
    Copy the example config and add your CyberSource credentials:

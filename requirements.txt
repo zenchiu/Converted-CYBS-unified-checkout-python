@@ -1,3 +1,7 @@
+# Install first when Python >= 3.12 (imghdr removed in 3.13, setuptools compatibility)
+setuptools<81; python_version >= "3.12"
+standard-imghdr; python_version >= "3.12"
+
 Flask>=3.0.0
 cybersource-rest-client-python>=0.0.73
 PyJWT>=2.8.0
