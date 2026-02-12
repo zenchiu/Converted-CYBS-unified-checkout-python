@@ -2,6 +2,8 @@
 
 A Python conversion of the [CyberSource Unified Checkout Node.js sample](https://github.com/CyberSource/cybersource-unified-checkout-sample-node). This application demonstrates integrating CyberSource Unified Checkout using the [cybersource-rest-client-python](https://github.com/CyberSource/cybersource-rest-client-python) SDK.
 
+> **Disclaimer:** This is not an official CyberSource example. I am a developer who based this on the [CyberSource Node.js sample](https://github.com/CyberSource/cybersource-unified-checkout-sample-node/tree/main) and have no relationship with CyberSource.
+
 ## Prerequisites
 
 - **Python 3.7+**
@@ -173,4 +175,4 @@ run_environment = api.cybersource.com
 
 ## License
 
-See the [LICENSE](../LICENSE) file for details.
+See the [LICENSE](LICENSE) file for details.
