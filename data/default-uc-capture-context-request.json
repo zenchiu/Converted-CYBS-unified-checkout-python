@@ -1,29 +1,32 @@
 {
     "targetOrigins" : [ "https://localhost:5000", "https://127.0.0.1:5000" ],
-    "clientVersion" : "0.26",
-    "allowedCardNetworks" : [ "VISA", "MASTERCARD", "AMEX", "DISCOVER", "JCB", "DINERSCLUB"],
-    "allowedPaymentTypes" : ["CLICKTOPAY", "GOOGLEPAY"],
-    "country" : "US",
+    "clientVersion" : "0.34",
+    "allowedCardNetworks" : [ "VISA", "MASTERCARD"],
+    "allowedPaymentTypes" : ["PANENTRY", "GOOGLEPAY", "APPLEPAY"],
+    "country" : "HK",
     "locale" : "en_US",
     "completeMandate" : {
-        "type" : "AUTH",
+        "type" : "CAPTURE",
         "consumerAuthentication" : true,
         "tms" : {
             "tokenCreate" : true
         }
     },
     "captureMandate" : {
-        "billingType" : "FULL",
-        "requestEmail" : true,
-        "requestPhone" : true,
-        "requestShipping" : true,
-        "shipToCountries" : [ "US", "GB" ],
+        "billingType" : "NONE",
+        "requestEmail" : false,
+        "requestPhone" : false,
+        "requestShipping" : false,
+        "shipToCountries" : [ "US", "GB", "HK" ],
         "showAcceptedNetworkIcons" : true
+    },
+    "transientTokenResponseOptions" : {
+        "includeCardPrefix" : true
     },
     "orderInformation" : {
         "amountDetails" : {
             "totalAmount" : "500.00",
-            "currency" : "USD"
+            "currency" : "HKD"
         },
         "billTo" : {
             "address1" : "123 Cool Street",
