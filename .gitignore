@@ -21,11 +21,12 @@ env/
 # Logs
 log/
 *.log
-
-# Test artifacts
-test_screenshots/
 e2e_run_log.txt
+e2e_*_log.txt
 e2e_test_summary.txt
+
+# Test artifacts (screenshots)
+test_screenshots/
 
 # Config with secrets (user should create their own)
 config.ini

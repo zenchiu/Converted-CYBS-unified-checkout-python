@@ -16,6 +16,7 @@ Flow (with completeMandate):
   5. Server displays the authorization result
 """
 
+import glob
 import json
 import base64
 import os
@@ -40,6 +41,39 @@ app.secret_key = os.urandom(24)
 # -------------------------------------------------------------------
 
 DATA_DIR = os.path.join(os.path.dirname(__file__), "data")
+CONFIG_FILE_PATTERN = "default-uc-capture-context-request*.json"
+
+
+def _get_available_capture_context_configs():
+    """Return list of (filename, display_name) for available capture context configs."""
+    pattern = os.path.join(DATA_DIR, CONFIG_FILE_PATTERN)
+    files = glob.glob(pattern)
+    prefix = "default-uc-capture-context-request"
+    base_name = f"{prefix}.json"
+
+    def sort_key(p):
+        name = os.path.basename(p)
+        return (0 if name == base_name else 1, name)
+
+    files = sorted(files, key=sort_key)
+    result = []
+    for f in files:
+        name = os.path.basename(f)
+        if name == base_name:
+            display = "default"
+        else:
+            display = name.replace(f"{prefix}-", "").replace(".json", "").replace("-", " ")
+        result.append((name, display))
+    return result
+
+
+def _load_capture_context_config(filename: str) -> str:
+    """Load capture context JSON from data dir."""
+    path = os.path.join(DATA_DIR, filename)
+    if not os.path.isfile(path):
+        raise FileNotFoundError(f"Config not found: {filename}")
+    with open(path, "r") as f:
+        return f.read()
 
 
 def _decode_jwt_payload(jwt_token: str) -> dict:
@@ -72,11 +106,20 @@ def index():
 
 @app.route("/ucoverview")
 def uc_overview():
-    """Display capture context request editor."""
-    json_path = os.path.join(DATA_DIR, "default-uc-capture-context-request.json")
-    with open(json_path, "r") as f:
-        json_request = f.read()
-    return render_template("uc_overview.html", json_request=json_request)
+    """Display capture context request editor with config selection."""
+    configs = _get_available_capture_context_configs()
+    selected = request.args.get("config")
+    # Validate selected or use first available
+    filenames = [c[0] for c in configs]
+    if not selected or selected not in filenames:
+        selected = filenames[0] if filenames else "default-uc-capture-context-request.json"
+    json_request = _load_capture_context_config(selected)
+    return render_template(
+        "uc_overview.html",
+        json_request=json_request,
+        configs=configs,
+        selected_config=selected,
+    )
 
 
 @app.route("/capture-context", methods=["POST"])
@@ -111,7 +154,15 @@ def capture_context():
     except Exception as e:
         print(f"\nException on calling the API: {e}")
         traceback.print_exc()
-        return f"Error: {e}", 500
+        return (
+            render_template(
+                "error.html",
+                message="Capture Context API Error",
+                status=500,
+                stack=str(e),
+            ),
+            500,
+        )
 
 
 # -------------------------------------------------------------------

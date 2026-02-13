@@ -64,6 +64,22 @@ async def run_test(headed: bool = False):
         # Step 3: Generate Capture Context
         await page.click("button:has-text('Generate Capture Context')")
         await page.wait_for_load_state("networkidle", timeout=30000)
+        # Wait for success (textarea with JWT); if timeout, check for API error
+        try:
+            await page.locator("textarea[name='captureContext']").wait_for(timeout=15000)
+        except Exception:
+            content = await page.content()
+            await _screenshot(page, "03_capture_context_fail.png", full_page=True)
+            if "Capture Context API Error" in content or "Error:" in content:
+                raise SystemExit(
+                    "E2E test failed: Capture Context API returned an error. "
+                    "Check config.ini (merchant_id, key_id, secret_key) and CyberSource sandbox connectivity. "
+                    "See test_screenshots/03_capture_context_fail.png for details."
+                )
+            raise SystemExit(
+                "E2E test failed: Capture Context step timed out. "
+                "The API may have failed. Check config.ini and CyberSource connectivity."
+            )
         jwt_val = await page.locator("textarea[name='captureContext']").input_value()
         print(f"  3. Capture Context generated: JWT {len(jwt_val.strip())} chars")
         await _screenshot(page, "03_capture_context.png", full_page=True)
@@ -151,9 +167,10 @@ async def run_test(headed: bool = False):
 
         print(f"  MCE frame: {mce_frame.url[:80]}")
 
-        # Visa from Payer Auth 2.9 Step-Up Success (replace X with 0): 4XXXXX XX XXXX 25X3
-        # https://developer.cybersource.com/docs/cybs/en-us/payer-authentication/developer/all/so/payer-auth/pa-testing-intro/pa-testing-3ds-2x-intro/pa-testing-3ds-2x-success-stepup-auth-cruise-hybri.html
-        CARD_NUMBER = "4000000000002503"
+        # Test cards: Visa 4000 0000 0000 2503, Mastercard 5200 0000 0000 1096
+        # Visa 4000000000002503: Payer Auth 2.9 Step-Up Success (3DS challenge)
+        # Set E2E_TEST_CARD=5200000000001096 to use Mastercard
+        CARD_NUMBER = os.environ.get("E2E_TEST_CARD", "4000000000002503")
         EXP_MONTH = "12"
         EXP_YEAR = "2026"
         CVV = "123"
@@ -163,7 +180,7 @@ async def run_test(headed: bool = False):
         if await card_input.count() > 0:
             await card_input.first.click()
             await card_input.first.fill(CARD_NUMBER)
-            print(f"  Card Number: {CARD_NUMBER} (Visa 3DS 2.9 Step-Up Success)")
+            print(f"  Card Number: {CARD_NUMBER}")
 
         # Fill expiry month
         month_sel = mce_frame.locator("#card-expiry-month")
@@ -226,7 +243,7 @@ async def run_test(headed: bool = False):
         # Give 3DS challenge iframe time to load (Cardinal/ACS can take several seconds)
         await asyncio.sleep(5)
 
-        # Visa 4000000000002503 (2.9 Step-Up Success) triggers challenge. Higher amount ($500) also helps.
+        # Visa 4000000000002503 triggers 3DS challenge. Mastercard 5200000000001096 also supported.
         # Cardinal/CyberSource 3DS sandbox may show: OTP input, or "Authenticate"/"Approve" button.
         for _ in range(90):  # Up to 90 seconds
             await asyncio.sleep(1)

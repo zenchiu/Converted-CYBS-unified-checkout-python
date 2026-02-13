@@ -15,7 +15,7 @@ This document cross-references the CyberSource documentation to ensure our setup
 
 ### ✅ 1. Test Card (2.9 Step-Up)
 
-- **Card:** Visa `4000000000002503` (from pattern `4XXXXX XX XXXX 25X3`)
+- **Card:** Visa `4000 0000 0000 2503` (4000000000002503) or Mastercard `5200 0000 0000 1096` (5200000000001096)
 - **Expiry:** 12/2026  
 - **CVV:** 123  
 - **Source:** [CyberSource 2.9 Step-Up Success](https://developer.cybersource.com/docs/cybs/en-us/payer-authentication/developer/all/so/payer-auth/pa-testing-intro/pa-testing-3ds-2x-intro/pa-testing-3ds-2x-success-stepup-auth-cruise-hybri.html)
@@ -60,7 +60,8 @@ So merchants cannot programmatically force a challenge; the flow is driven by ba
 |--------|-------------|-------|
 | `consumerAuthentication` | `true` | Must be set for 3DS |
 | Order amount | $500 | Higher amount increases chance of challenge |
-| Test card | 4000000000002503 | 2.9 step-up card for Cruise/Hybrid |
+| Test card | 4000000000002503 | Visa 2.9 step-up |
+| Test card | 5200000000001096 | Mastercard |
 | Merchant config | Payer Auth enabled | Required in Business Center |
 
 ## Recommended Actions to Maximize OTP Appearance
@@ -90,3 +91,24 @@ The project is **correctly configured** for the OTP flow. If the challenge does 
 - Sandbox merchant not configured for challenge flow  
 - Acquirer/issuer sandbox rules favoring frictionless  
 - Need to verify with CyberSource support that challenge flow is enabled for your merchant ID
+
+---
+
+## Troubleshooting: COMPLETE_AUTHENTICATION_FAILED
+
+**Error:** `{"name":"AcceptError","reason":"COMPLETE_AUTHENTICATION_FAILED","message":"Consumer Authentication failure."}`
+
+**Cause:** Payer Authentication (3DS) is failing — usually because the merchant does not have EMV 3-D Secure enabled or properly configured in CyberSource Business Center.
+
+**Solutions:**
+
+1. **Enable Payer Authentication** (recommended)
+   - Contact CyberSource support to enable EMV 3-D Secure 2.x for your merchant ID
+   - See [Enable Merchant Account for EMV 3-D Secure](https://developer.cybersource.com/docs/cybs/en-us/payer-authentication/developer/all/so/payer-auth/pa2-intro-intro/pa2-intro-account-setup.html)
+   - Check Business Center → Payment Configuration for Payer Authentication settings
+
+2. **Test without 3DS** (temporary workaround)
+   - Use the `no-3ds` preset: `default-uc-capture-context-request-no-3ds.json`
+   - Or `no-3ds-token-with-prefix`: `default-uc-capture-context-request-no-3ds-token-with-prefix.json` (adds tokenCreate, includeCardPrefix, requestSaveCard)
+   - These set `consumerAuthentication: false` so the flow skips 3DS and processes payment only
+   - Run: `./run_e2e_no_3ds_token_test.sh`

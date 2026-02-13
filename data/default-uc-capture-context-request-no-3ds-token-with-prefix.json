@@ -1,0 +1,61 @@
+{
+  "targetOrigins": ["https://localhost:5000", "https://127.0.0.1:5000"],
+  "clientVersion": "0.34",
+  "allowedCardNetworks": ["VISA", "MASTERCARD"],
+  "allowedPaymentTypes": ["PANENTRY", "GOOGLEPAY", "APPLEPAY"],
+  "country": "HK",
+  "locale": "en_US",
+  "completeMandate": {
+    "type": "CAPTURE",
+    "consumerAuthentication": false,
+    "tms": {
+      "tokenCreate": true,
+      "tokenTypes": ["customer", "paymentInstrument", "instrumentIdentifier"]
+    }
+  },
+  "captureMandate": {
+    "billingType": "NONE",
+    "requestEmail": false,
+    "requestPhone": false,
+    "requestShipping": false,
+    "shipToCountries": ["US", "GB", "HK"],
+    "showAcceptedNetworkIcons": true,
+    "requestSaveCard": true
+  },
+  "transientTokenResponseOptions": {
+    "includeCardPrefix": true
+  },
+  "orderInformation": {
+    "amountDetails": {
+      "totalAmount": "500.00",
+      "currency": "HKD"
+    },
+    "billTo": {
+      "address1": "123 Cool Street",
+      "administrativeArea": "NY",
+      "buildingNumber": "12",
+      "country": "US",
+      "district": "district",
+      "locality": "New York",
+      "postalCode": "10172",
+      "email": "foo@bar.com",
+      "firstName": "Viktor",
+      "lastName": "Vaughn",
+      "middleName": "F",
+      "nameSuffix": "Jr",
+      "title": "Mr",
+      "phoneNumber": "1234567890"
+    },
+    "shipTo": {
+      "address1": "456 Nice Avenue",
+      "administrativeArea": "CA",
+      "buildingNumber": "409",
+      "country": "US",
+      "district": "Uptown",
+      "locality": "Los Angeles",
+      "postalCode": "90010",
+      "firstName": "Alan",
+      "lastName": "Turing"
+    }
+  }
+}
