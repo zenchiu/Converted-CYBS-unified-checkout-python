@@ -7,7 +7,7 @@ and processing payment responses with widget-managed service orchestration.
 
 Flow (with completeMandate):
   1. Generate Capture Context with completeMandate configuration:
-       - type: AUTH (authorize payment)
+       - type: CAPTURE (authorize + capture payment)
        - consumerAuthentication: true (Payer Authentication / 3DS)
        - tms.tokenCreate: true (create TMS token)
   2. Unified Checkout widget captures payment info via up.show()
@@ -256,7 +256,7 @@ def process_payment():
 
         return render_template(
             "complete_response.html",
-            response=response_json,
+            response=widget_response,
             decoded_data=response_json,
             payment_status=payment_status,
         )
