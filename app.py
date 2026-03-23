@@ -237,20 +237,29 @@ def process_payment():
                 decoded = {"rawResponse": widget_response[:2000]}
                 response_json = json.dumps(decoded, indent=2)
 
-        # Extract payment status from the decoded response
+        # Extract payment status from the decoded response.
+        # The completeMandate response JWT may have status at the top level
+        # or nested inside a "content" object (per CyberSource transient token format).
         payment_status = "UNKNOWN"
         if isinstance(decoded, dict):
-            # The complete mandate response may contain different structures
-            # depending on the outcome (authorized, declined, error, etc.)
+            content = decoded.get("content") or {}
             payment_status = (
                 decoded.get("status")
                 or decoded.get("paymentStatus")
                 or decoded.get("orderStatus")
+                or content.get("status")
+                or content.get("paymentStatus")
                 or "COMPLETED"
             )
 
             # Log key info
-            txn_id = decoded.get("id", decoded.get("transactionId", "N/A"))
+            txn_id = (
+                decoded.get("id")
+                or decoded.get("transactionId")
+                or content.get("id")
+                or content.get("transactionId")
+                or "N/A"
+            )
             print(f"\n[process-payment] Status: {payment_status}")
             print(f"[process-payment] Transaction ID: {txn_id}")
 
