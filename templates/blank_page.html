@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <title>Authentication Complete</title>
+</head>
+<body>
+<script>
+    // This page loads inside the 3DS step-up iframe after the cardholder
+    // completes OTP authentication. The ACS (card issuer) posts the
+    // TransactionId to /step-up-complete, which stores it in session and
+    // renders this blank page. Redirecting window.top breaks out of the
+    // iframe and navigates the full page to the validation endpoint.
+    window.top.location.href = '/payer-auth-validate';
+</script>
+</body>
+</html>

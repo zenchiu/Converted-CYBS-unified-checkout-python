@@ -201,8 +201,8 @@
         </div>
     </div>
 </div>
-<form id="authForm" action="/process-payment" method="post">
-    <input type="hidden" id="response" name="response"/>
+<form id="authForm" action="/payer-auth-combined" method="post">
+    <input type="hidden" id="transientToken" name="transientToken"/>
 </form>
 <input type="hidden" id="captureContext" value="{{ capture_context }}" />
 
@@ -231,7 +231,6 @@
 
   async function flexSetup() {
     const authForm = document.getElementById("authForm");
-    const response = document.getElementById("response");
     const cc = document.getElementById("captureContext").value;
     const showArgs = {
       containers: {
@@ -244,14 +243,11 @@
       const up = await accept.unifiedPayments(sidebar);
       const tt = await up.show(showArgs);
 
-      // completeMandate is configured in the capture context with:
-      //   type: AUTH, consumerAuthentication: true, tms.tokenCreate: true
-      // up.complete() orchestrates: Payer Authentication (3DS) → Authorization → TMS Token
-      console.log("Payment data captured, completing service orchestration...");
-      const completeResponse = await up.complete(tt);
-
-      console.log("Service orchestration complete, submitting result to server...");
-      response.value = completeResponse;
+      // Submit the transient token to the server.
+      // The server calls POST /pts/v2/payments with CONSUMER_AUTHENTICATION,
+      // combining 3DS enrollment + authorization in one API call.
+      console.log("Payment data captured, submitting for combined 3DS authentication...");
+      document.getElementById("transientToken").value = tt;
       authForm.submit();
     }
     catch (error) {
